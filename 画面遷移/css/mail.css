@@ -1,6 +1,0 @@
-.request-section-wrapper {
-    /* 表示する行数を増やす（高さ調整） */
-    height: 170px;
-    /* ユーザーによるサイズ変更を禁止する */
-    resize: none; 
-}
