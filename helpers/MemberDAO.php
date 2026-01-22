@@ -1,5 +1,5 @@
 <?php
-    require_once "DAO.php";
+    require_once "/DAO.php";
 
     class Member{
     public ?string $member_id=null;
