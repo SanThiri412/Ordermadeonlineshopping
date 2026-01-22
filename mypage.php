@@ -1,37 +1,13 @@
-<?php
-session_start();
-
-// 表示名
-$user_name = isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'ゲスト';
-
-// デフォルト画像（保存先）
-$default_image = 'images/Icons/user.png';
-$user_image = $default_image;
-
-// セッションに member_image（ファイル名）が入っている前提で処理
-if (!empty($_SESSION['user_image'])) {
-    // 安全のため basename() でディレクトリ操作を除去
-    $filename = basename($_SESSION['user_image']);
-    $fs_path = __DIR__ . '/images/' . $filename; // サーバ上の実ファイルパス
-
-    if (file_exists($fs_path)) {
-        // 存在すれば公開パスを設定
-        $user_image = 'images/' . $filename;
-    } else {
-        // 見つからなければログ出力（デバッグ）
-        error_log("DEBUG: user image not found: {$fs_path}");
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>マイページ</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
     <link href="css/mypageforstyle.css" rel="stylesheet">
     <link href="css/background.css" rel="stylesheet">
 </head>
@@ -41,8 +17,8 @@ if (!empty($_SESSION['user_image'])) {
         <div class="card">
             <div class="card-inner">
                 <div class="profile-row">
-                    <div class="profile-icon"><img src="<?= $user_image ?>" alt="profile"></div>
-                    <div class="profile-title"> <?= $user_name ?></div>
+                    <div class="profile-icon"><img src="images/Icons/user.png" alt="profile"></div>
+                    <div class="profile-title">自己紹介</div>
                 </div>
 
                 <nav class="list" aria-label="マイページメニュー">
@@ -54,7 +30,7 @@ if (!empty($_SESSION['user_image'])) {
                         <img class="list-icon" src="images/Icons/heart.png" alt="favorite">
                         <div class="list-label">お気に入り画面</div>
                     </a>
-                    <a class="list-item" href="History.php">
+                    <a class="list-item" href="rireki.php">
                         <img class="list-icon" src="images/Icons/parchment.png" alt="history">
                         <div class="list-label">履歴・メールフォーム画面</div>
                     </a>
@@ -70,7 +46,7 @@ if (!empty($_SESSION['user_image'])) {
 
                 <div class="signout-wrap">
                   <form action="logout.php" method="post" style="display:inline">
-                      <button type="submit" class="btn-signout">ログアウト</button>
+                      <button type="submit" class="btn-signout">Sign Out</button>
                    </form>
                 </div>
             </div>
@@ -78,5 +54,5 @@ if (!empty($_SESSION['user_image'])) {
     </main>
 
     <footer class="page-footer" aria-hidden="true"></footer>
-</body>
-</html>
+    </body>
+    </html>

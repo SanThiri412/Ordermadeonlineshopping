@@ -1,133 +1,64 @@
-<?php
-use  PHPMailer\PHPMailer\PHPMailer;
-use  PHPMailer\PHPMailer\Exception;
-use  PHPMailer\PHPMailer\SMTP;
-
-require('./PHPMailer/PHPMailer/src/PHPMailer.php');
-require('./PHPMailer/PHPMailer/src/Exception.php');
-require('./PHPMailer/PHPMailer/src/SMTP.php');
-
-require_once 'helpers/MemberDAO.php';
-require_once 'helpers/HistoryDAO.php';
-
-session_start();
-
-if (!isset($_SESSION['member'])) {
-    header('Location: login.php');
-    exit;
-}
-$member = $_SESSION['member'];
-$current_member_id = $member->member_id;
-
-$HistoryDAO = new HistoryDAO();
-$MemberDAO  = new MemberDAO();
-
-$goodsCode = $_REQUEST['goodsCode'] ?? $_REQUEST['goodscode'] ?? null;
-$to_member_id = $_REQUEST['member_id'] ?? null;
-
-// 商品と役割の特定
-$History_list = $HistoryDAO->get_buy_by_memberid($current_member_id); 
-$Orders_list  = $HistoryDAO->get_buyOrders_by_memberid($current_member_id); 
-
-function find_in_list($list, $code) {
-    if (!$list) return null;
-    foreach ($list as $item) {
-        $val = $item->goodscode ?? $item->goodsCode ?? null;
-        if ($val !== null && (string)$val === (string)$code) return $item;
-    }
-    return null;
-}
-
-$found = find_in_list($Orders_list, $goodsCode);
-$is_seller = ($found !== null); 
-if (!$found) $found = find_in_list($History_list, $goodsCode);
-
-if ($found && !$to_member_id) {
-    $to_member_id = $is_seller ? ($found->Orders_member_id ?? $found->member_id) : ($found->goods_member_id ?? $found->member_id);
-}
-
-// 相手情報取得
-$partner = $to_member_id ? $MemberDAO->get_member_by_id((int)$to_member_id) : null;
-$partner_nickname = $partner->nickName ?? 'ユーザー';
-$partner_email = $partner->email ?? '';
-
-// 表示用
-$goodsName = $found->goodsname ?? $found->goodsName ?? '';
-$goodsText = $found->goodsText ?? $found->goods_text ?? '';
-$imagePath = !empty($found->goods_image) ? 'images/' . ltrim($found->goods_image, '/') : 'images/no_image.png';
-
-$message = '';
-
-// --- PHPMailer 送信処理 ---
-if (isset($_POST['send']) && $partner_email) {
-    $mail = new PHPMailer(true);
-    $mail->CharSet = 'utf-8';
-    try {
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = '24jn0220@jec.ac.jp'; // ★あなたのメアド★
-        $mail->Password   = 'eshx sgvn gxuq anlt'; // ★アプリパスワード★
-        $mail->SMTPSecure = 'ssl';
-        $mail->Port       = 465;
-
-        $mail->setFrom('24jn0220@jec.ac.jp', 'SELARG事務局'); // 送信元
-        $mail->addAddress($partner_email, $partner_nickname . '様');
-
-        // メールの件名と本文
-        if ($is_seller) {
-            $mail->Subject = "【SELARG】商品「{$goodsName}」のご購入ありがとうございます";
-        } else {
-            $mail->Subject = "【SELARG】商品「{$goodsName}」についてのお問い合わせ";
-        }
-
-        $mail->Body = "{$partner_nickname} 様\n\n" 
-                    . "{$member->nickName} 様よりメッセージが届きました。\n\n"
-                    . "内容：\n{$_POST['request']}\n\n"
-                    . "--------------------------\n"
-                    . "商品：{$goodsName}\n"
-                    . "--------------------------";
-
-        $mail->send();
-        $message = '<div style="color:green; text-align:center; margin-bottom:10px;">メールを送信しました。</div>';
-    } catch (Exception $e) {
-        $message = '<div style="color:red;">送信に失敗しました。エラー: ' . $mail->ErrorInfo . '</div>';
-    }
-}
-?>
 
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/mail.css" rel="stylesheet">
-    <link href="css/background.css" rel="stylesheet">
-    <title>SELARG - メール作成</title>
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メールフォーム画面</title>
+     <link href="css/style.css" rel="stylesheet" type="text/css">
+     <link href="css/background.css" rel="stylesheet">
+     <link href="css/mail.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-    <?php include "header.php"; ?>
-    <div class="container">
-        <?= $message ?>
-        <div class="img-box">
-            <img src="<?= htmlspecialchars($imagePath) ?>">
+     <?php include "header.php"; ?>
+     <<div class="container mt-4 p-4 w-50 border rounded">
+        <div class="hero-section text-center">
+            <div class="container">
+                
+            </div>
+
+
+        </div>
+        
+                         
+            <div class="product-image-box">
+                
+               <img src="images/作家１(ゴールド)/0013.jpg" alt="" width="120px" height="120px" style="padding: 10px; margin: bottom 10px; border: 1px solid #000000; border-radius: 10px;">
+            
+            </div>
+
+            <div class="product-details">
+                <div class="form-group">
+                    <label for="product_name">商品名</label>
+                    <input type="name" class="form-control" area-describedby="emailHelp" placeholder="name"disabled>
+                </div>
+                <div class="form-group">
+                    <label for="product_description">商品説明</label>
+                   <input type="name" class="form-control" area-describedby="emailHelp" placeholder="Explanation"disabled>
+                </div>
+           
+        
         </div>
 
-    <form action="" method="post">
-        <div class="label">商品名</div>
-        <div class="field"><?= htmlspecialchars($goodsName) ?></div>
+        <div class="request-section-wrapper">
+            <label for="request_text" class="request-label">要望</label>
+           <textarea 
+        class="form-control" 
+        id="requestArea" 
+        aria-describedby="emailHelp" 
+        placeholder="Request"
+        rows="5" ></textarea>
+        </div>
 
-        <div class="label">商品説明</div>
-        <div class="field"><?= htmlspecialchars($goodsText) ?></div>
-
-        <div class="label">要望・メッセージ</div>
-        <textarea name="request" required placeholder="ここにメッセージを入力してください"></textarea>
-
-        <input type="submit" name="send" value="送信" class="btn-primary">
-    </form>
+        <div class="d-grid gap-2 col-6 mx-auto">
+                <a href="rireki.php"><button type="submit" class="container btn btn-primary">送信</button></a>
+            </div>
+        </div>
 </div>
 
+    </form>
 </body>
 </html>

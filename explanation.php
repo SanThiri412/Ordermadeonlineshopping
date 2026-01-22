@@ -1,242 +1,146 @@
 <?php
-require_once './helpers/GoodsDAO.php';
-require_once './helpers/MemberDAO.php';
-require_once './helpers/DAO.php';
-
-session_start();
-
-$artist_id = isset($_GET['artist_id']) ? intval($_GET['artist_id']) : 1;
-
-// DEBUG
-error_log("DEBUG: artist_id = " . var_export($artist_id, true));
-
-// お気に入り作家トグル処理（POST）
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['artist'])) {
-    $member = $_SESSION['member'] ?? null;
-    $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-              strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-
-    if (!$member) {
-        if ($isAjax) {
-            header('Content-Type: application/json; charset=utf-8');
-            $return = urlencode($_SERVER['REQUEST_URI']);
-            echo json_encode(['status' => 'login_required', 'login_url' => 'login.php?return=' . $return]);
-            exit;
-        }
-        header('Location: login.php?return=' . urlencode($_SERVER['REQUEST_URI']));
-        exit;
-    }
-
-    $favorite_member_id = isset($_POST['artist']) ? intval($_POST['artist']) : 0;
     
-    if ($favorite_member_id > 0) {
-        try {
-            $dbh = DAO::get_db_connect();
-            
-            // 確認
-            $sql = "SELECT COUNT(*) AS cnt FROM Favorite_member WHERE member_id = :m AND favorite_member_id = :fm";
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindValue(':m', (int)$member->member_id, PDO::PARAM_INT);
-            $stmt->bindValue(':fm', $favorite_member_id, PDO::PARAM_INT);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $favorited = (int)($row['cnt'] ?? 0) > 0;
+    $recommended_products = [
+        // 実際の画像ファイルパスに置き換えてください
+        ['goodscode'=>'R001','name' => 'おすすめ商品A', 'image_url' => 'images\作家２(シルバー)\0014.jpg'], 
+        ['goodscode'=>'R002','name' => 'おすすめ商品B', 'image_url' => 'images\作家２(シルバー)\0015.jpg'],
+        ['goodscode'=>'R003','name' => 'おすすめ商品C', 'image_url' => 'images\作家２(シルバー)\0016.jpg'],
+        ['goodscode'=>'R004','name' => 'おすすめ商品D', 'image_url' => 'images\作家２(シルバー)\0017.jpg'],
+        ['goodscode'=>'R005','name' => 'おすすめ商品E', 'image_url' => 'images\作家２(シルバー)\0018.jpg'],
+        ['goodscode'=>'R006','name' => 'おすすめ商品F', 'image_url' => 'images\作家２(シルバー)\0019.jpg'],
+    ];
 
-            if ($favorited) {
-                // 削除
-                $del = $dbh->prepare("DELETE FROM Favorite_member WHERE member_id = :m AND favorite_member_id = :fm");
-                $del->bindValue(':m', (int)$member->member_id, PDO::PARAM_INT);
-                $del->bindValue(':fm', $favorite_member_id, PDO::PARAM_INT);
-                $del->execute();
-                $favorited = false;
-            } else {
-                // 追加
-                $ins = $dbh->prepare("INSERT INTO Favorite_member (member_id, favorite_member_id) VALUES (:m, :fm)");
-                $ins->bindValue(':m', (int)$member->member_id, PDO::PARAM_INT);
-                $ins->bindValue(':fm', $favorite_member_id, PDO::PARAM_INT);
-                $ins->execute();
-                $favorited = true;
-            }
-        } catch (Exception $e) {
-            error_log('Favorite_member toggle error: ' . $e->getMessage());
-            $favorited = false;
-        }
-
-        if ($isAjax) {
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode(['status' => 'ok', 'favorited' => $favorited]);
-            exit;
-        }
-
-        header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? $_SERVER['REQUEST_URI']));
-        exit;
-    }
-}
-
-// Map artist IDs to folder names
-$artistFolders = [
-    1 => '作家１(ゴールド)',
-    2 => '作家２(シルバー)',
-    3 => '作家３(プラチナ)',
-    4 => '作家４(月)',
-    5 => '作家５(宝石)',
-    6 => '作家６(面白)',
-    7 => '作家７(天然石)',
-    8 => '作家８(和風)',
-];
-
-// === DAO ===
-$goodsDAO = new GoodsDAO();
-$memberDAO = new MemberDAO();
-
-// 作家情報
-$artist = $memberDAO->get_member_by_id($artist_id);
-
-// DEBUG
-error_log("DEBUG: artist result = " . var_export($artist, true));
-
-if (!$artist) {
-    // 作家が見つからない場合のデフォルト
-    $artist_name = "不明な作家";
-    $artist_intro = "";
-    $artist_folder = $artistFolders[1] ?? '作家１(ゴールド)';
-    $artist_image = "user.png";
-} else {
-    $artist_name = $artist->nickName ?? "不明な作家";
-    $artist_intro = $artist->self_introduction ?? "";
-    $artist_folder = $artistFolders[$artist_id] ?? '作家１(ゴールド)';
-    $artist_image = $artist->member_image ?? "user.png";
-}
-
-// 作家のおすすめ商品
-$recommended_products = $goodsDAO->get_recommend_goods_by_member_id($artist_id) ?? [];
-
-// 作家の出品商品
-$exhibited_products = $goodsDAO->get_goods_by_member_id($artist_id) ?? [];
-
-// ログイン状態でお気に入い状態を取得
-$isMemberFavorited = false;
-$member = $_SESSION['member'] ?? null;
-if ($member && isset($member->member_id)) {
-    try {
-        $dbh = DAO::get_db_connect();
-        $sql = "SELECT COUNT(*) AS cnt FROM Favorite_member WHERE member_id = :m AND favorite_member_id = :fm";
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindValue(':m', (int)$member->member_id, PDO::PARAM_INT);
-        $stmt->bindValue(':fm', (int)$artist_id, PDO::PARAM_INT);
-        $stmt->execute();
-        $isMemberFavorited = (int)$stmt->fetch(PDO::FETCH_ASSOC)['cnt'] > 0;
-    } catch (Exception $e) {
-        error_log('favorite member read error: ' . $e->getMessage());
-    }
-}
+    // 出品商品 (おすすめ商品と同じ構造を使用)
+    $exhibited_products = [
+        // 実際の画像ファイルパスに置き換えてください
+        ['goodscode'=>'E001','name' => '出品商品1', 'image_url' => 'images/作家３(シルバー)/0023.jpg'],
+        ['goodscode'=>'E002','name' => '出品商品2', 'image_url' => 'images/作家３(シルバー)/0024.jpg'],
+        ['goodscode'=>'E003','name' => '出品商品3', 'image_url' => 'images/作家３(シルバー)/0025.jpg'],
+        ['goodscode'=>'E004','name' => '出品商品4', 'image_url' => 'images/作家３(シルバー)/0026.jpg'],
+        ['goodscode'=>'E005','name' => '出品商品5', 'image_url' => 'images/作家３(シルバー)/0027.jpg'],
+        ['goodscode'=>'E006','name' => '出品商品6', 'image_url' => 'images/作家３(シルバー)/0028.jpg'],
+    ];
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="css/background.css" rel="stylesheet">
-<link href="css/Explanationforstyle.css" rel="stylesheet"> 
-<title>作家詳細ページ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/background.css" rel="stylesheet">
+    <link href="css/Explanationforstyle.css" rel="stylesheet"> 
+    <title>会員詳細ページ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-</head>
-
+    </head>
 <body>
-
-<?php include "header.php"; ?>
-
-<main class="container my-4">
-    <div class="row">
-        <!-- 左側プロフィール -->
-        <div class="col-md-2 text-center">
-
-            <img src="images/<?= htmlspecialchars($artist_image) ?>" 
-                 onerror="this.src='images/Icons/user.png';"
-                 class="profile-image">
-
-            <h5 class="mt-2"><?= htmlspecialchars($artist_name) ?></h5>
-
-            <form method="post" action="" class="fav-form">
-                <input type="hidden" name="artist" value="<?= $artist_id ?>">
-                <button type="submit" class="btn-primary"
-                        aria-pressed="<?php echo $isMemberFavorited ? 'true' : 'false'; ?>"
-                        title="お気に入りに追加">
-                    <i class="bi <?php echo $isMemberFavorited ? 'bi-heart-fill' : 'bi-heart'; ?>"></i> お気に入り
-                </button>
-            </form>
-        </div>
-
-        <!-- 右側メイン -->
-        <div class="col-md-10">
-            
-            <!-- 自己紹介 -->
-            <section class="mb-4">
-                <h3>自己紹介</h3>
-                <div class="p-3 bg-light rounded border">
-                    <?= nl2br(htmlspecialchars($artist_intro ?: "（紹介文はありません）")) ?>
+    <?php  include "header.php";  ?>
+   
+    <main class="container my-4">
+        <div class="main-content">
+            <div class="row">
+                <div class="col-md-2 d-flex justify-content-center">
+                    <div class="text-center">
+                        <i class="profile-icon">
+                            <img src="images/Icons/user.png" alt="profile" class="img-fluid" style="width: 80px; height: 80px;">
+                        </i>
+                    </div>
                 </div>
-            </section>
 
-            <!-- おすすめ商品 -->
-            <section class="mb-5">
-                <h3>おすすめ商品</h3>
+                <div class="col-md-10">
+                    <section class="intro-box">
+                        <h2>自己紹介</h2>
+                    </section>
 
-                <?php if (!empty($recommended_products)): ?>
-                <div class="horizontal-scroll">
-                    <?php foreach ($recommended_products as $product): ?>
-                        <?php 
-                            $img = "images/" . ($product->goods_image ?? 'Icons/no-image.png');
-                        ?>
-                        <div class="product-card">
-                            <a href="goods.php?goodsCode=<?= htmlspecialchars($product->goodsCode ?? '') ?>">
-                                <img src="<?= htmlspecialchars($img) ?>"
-                                     onerror="this.src='images/Icons/no-image.png';"
-                                     class="product-img">
-                            </a>
-                            <p><?= htmlspecialchars($product->goodsName ?? '商品名なし') ?></p>
-                            <?php if (isset($product->price)): ?>
-                                <p class="text-muted">¥<?= number_format($product->price) ?></p>
-                            <?php endif; ?>
+                    <section class="recommendations mb-5 position-relative">
+                        <h3>おすすめ商品</h3>
+                        <i class="bi bi-chevron-left product-nav prev-nav"></i>
+                        <div class="row g-3">
+                            <?php foreach ($recommended_products as $product): ?>
+                                <div class="col-6 col-md-3">
+                                    <div class="product-card">
+                                        <div class="product-image-placeholder">
+                                            <a href="goods.php?goodscode=<?= urlencode($product['goodscode']) ?>">
+                                               <img src="<?php echo htmlspecialchars($product['image_url'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                    alt="<?php echo htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                        class="product-img">
+                                            </a>
+                                        </div>
+                                        <p><?php echo htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-                <?php else: ?>
-                    <p class="text-muted">おすすめ商品はありません。</p>
-                <?php endif; ?>
-            </section>
-
-            <!-- 出品商品 -->
-            <section>
-                <h3>出品商品</h3>
-
-                <?php if (!empty($exhibited_products)): ?>
-                <div class="horizontal-scroll">
-                    <?php foreach ($exhibited_products as $product): ?>
-                        <?php 
-                            $img = "images/" . $product->goods_image;
-                        ?>
-                        <div class="product-card">
-                            <a href="goods.php?goodsCode=<?= $product->goodsCode ?>">
-                                <img src="<?= htmlspecialchars($img) ?>"
-                                     onerror="this.src='images/Icons/no-image.png';"
-                                     class="product-img">
-                            </a>
-                            <p><?= htmlspecialchars($product->goodsName) ?></p>
+                        <i class="bi bi-chevron-right product-nav next-nav"></i>
+                    </section>
+                    
+                    <section class="exhibited-products position-relative">
+                        <h3>出品商品</h3>
+                        <i class="bi bi-chevron-left product-nav prev-nav"></i>
+                        <div class="row g-3">
+                            <?php foreach ($exhibited_products as $product): ?>
+                                <div class="col-6 col-md-3">
+                                    <div class="product-card">
+                                        <div class="product-image-placeholder">
+                                            <a href="goods.php?goodscode=<?= urlencode($product['goodscode']) ?>">
+                                                <img src="<?php echo htmlspecialchars($product['image_url'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                                    alt="<?php echo htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                        class="product-img">
+                                            </a>
+                                        </div>
+                                        <p><?php echo htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
+                        <i class="bi bi-chevron-right product-nav next-nav"></i>
+                    </section>
                 </div>
-                <?php else: ?>
-                    <p class="text-muted">現在出品商品はありません。</p>
-                <?php endif; ?>
-            </section>
-
+            </div>
         </div>
-    </div>
-</main>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // おすすめ商品のナビゲーション設定
+    const recSection = document.querySelector('.recommendations');
+    const recContainer = recSection.querySelector('.row.g-3');
+    const recPrev = recSection.querySelector('.prev-nav');
+    const recNext = recSection.querySelector('.next-nav');
 
-<script src="javascript/favorite.js"></script>
+    // 出品商品のナビゲーション設定
+    const exhSection = document.querySelector('.exhibited-products');
+    const exhContainer = exhSection.querySelector('.row.g-3');
+    const exhPrev = exhSection.querySelector('.prev-nav');
+    const exhNext = exhSection.querySelector('.next-nav');
+    
+    // スクロール処理を実行する関数
+    function attachScroll(container, prevBtn, nextBtn) {
+        if (!container || !prevBtn || !nextBtn) return;
+
+        // 矢印がクリックされたら、コンテナを1つ分の商品幅だけスクロールさせる
+        const scrollAmount = container.querySelector('.col-md-3') ? 
+                             container.querySelector('.col-md-3').offsetWidth * 4 : 
+                             300; // 適切なスクロール量
+
+        prevBtn.addEventListener('click', function() {
+            container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+
+        nextBtn.addEventListener('click', function() {
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+
+        // 商品を横スクロール可能にするCSSを適用 (後述のCSSを必ず追加)
+        container.style.overflowX = 'scroll';
+        container.style.flexWrap = 'nowrap';
+        container.style.paddingBottom = '1rem'; // スクロールバーのためのスペース
+    }
+
+    // 両方のセクションに機能を適用
+    attachScroll(recContainer, recPrev, recNext);
+    attachScroll(exhContainer, exhPrev, exhNext);
+});
+</script>
 </body>
 </html>

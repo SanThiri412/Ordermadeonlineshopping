@@ -1,0 +1,31 @@
+@charset "UTF-8";
+html,body{
+	margin:0;
+	padding:0;
+	height:100%;
+}
+/* h1{
+	margin:20px 50px;
+	font-size:large;
+	border-left:10px solid #7BAEB5;
+	border-bottom:1px solid #7BAEB5;
+	padding:10px;
+	width:600px;
+} */
+
+#slide-items {
+    list-style-type: none;
+    pointer-events: none;
+    position: relative;
+    height: 427px;
+}
+
+#slide-items > li {
+    opacity: 0;
+    position: absolute;
+    transition: opacity 1s;
+}
+
+#slide-items > li.current {
+    opacity: 1;
+}
