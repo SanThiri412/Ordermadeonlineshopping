@@ -1,6 +1,6 @@
 <?php
     // DSNにはサーバー名、ポート、データベース名のみを記述します
-    define('DSN', "sqlsrv:server = tcp:24jn0201db.database.windows.net,1433; Database = selarg");
+    define('DSN', "sqlsrv:server=tcp:24jn0201db.database.windows.net,1433; Database=selarg");
     
     // ユーザー名とパスワードは個別の定数として定義します
     define('DB_USER', 'jndb');
