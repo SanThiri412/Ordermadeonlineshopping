@@ -1,50 +1,24 @@
 <?php
     require_once './helpers/MemberDAO.php';
-
-    if(session_status()===PHP_SESSION_NONE){
+    if(session_status() === PHP_SESSION_NONE){
         session_start();
     }
-    // login.phpで保存したキーに合わせて取り出す
-    if(isset($_SESSION['member'])){
-        $member=$_SESSION['member'];
-    }
+    $member = isset($_SESSION['member']) ? $_SESSION['member'] : null;
 ?>
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <style>
-        div{ background-color: #f8f6f7; }
-    </style>
-    <nav class="navbar navbar-expand-lg navbar-white bg-white">
-        <div class="container">
-            <a class="navbar-brand" href="top.php">
-                <img src="images/ロゴ.png" alt="ロゴ" height="50">
-            </a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <?php if(isset($member)) : ?>
-                        <li class="nav-item">
-                            <a href="cart.php" class="nav-link"><font color="black">カート</font></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="mypage.php" class="nav-link"><font color="black">マイページ</font></a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="okiniiri.php" class="nav-link"><font color="black">お気に入り</font></a>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a href="login.php" class="nav-link"><font color="black">ログイン</font></a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-white bg-white">
+    <div class="container">
+        <a class="navbar-brand" href="top.php">
+            <img src="images/ロゴ.png" alt="ロゴ" height="50">
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <?php if(isset($member)) : ?>
+                    <li class="nav-item"><a href="cart.php" class="nav-link" style="color: black;">カート</a></li>
+                    <li class="nav-item"><a href="mypage.php" class="nav-link" style="color: black;">マイページ</a></li>
+                <?php else: ?>
+                    <li class="nav-item"><a href="login.php" class="nav-link" style="color: black;">ログイン</a></li>
+                <?php endif; ?>
+            </ul>
         </div>
-    </nav>
-</body>
-</html>
+    </div>
+</nav>
