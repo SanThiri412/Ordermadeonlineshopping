@@ -1,8 +1,7 @@
 <?php
-//森下
-require_once "DAO.php";
+    require_once "DAO.php";
 
-class Member{
+    class Member{
     public ?string $member_id=null;
     public string $name;
     public string $kanaName;
