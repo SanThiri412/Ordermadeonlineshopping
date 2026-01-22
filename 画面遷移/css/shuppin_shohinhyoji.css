@@ -1,0 +1,43 @@
+.item-wrapper {
+    /* これが画像とボタンを横並びにするための設定です */
+    display: flex;
+    /* 縦方向の中央揃え */
+    align-items: center;
+    /* 画像とボタンのグループの間に少し隙間を空ける */
+    gap: 15px; 
+    border: 1px solid #312c2c; /* 見やすいように枠線を追加 */
+    padding: 10px;
+    width: fit-content; /* 内容物の幅に合わせる */
+}
+
+.product-icon {
+    /* 画像の大きさ調整（例） */
+    width: 80px;
+    height: 80px;
+    border: 1px dashed #666; /* 仮の画像枠 */
+}
+
+.button-group {
+    /* 編集・削除ボタンを縦並びにするための設定 */
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* ボタン間の隙間 */
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    border: 1px solid #333;
+    background-color: white;
+    cursor: pointer;
+    
+}
+.image-grid {
+    /* Gridレイアウトを有効にする */
+    display: grid;
+
+    /* 横に3列を作成し、各列の幅を均等 (1fr) にする */
+    grid-template-columns: repeat(3, 1fr);
+
+    
+}
+

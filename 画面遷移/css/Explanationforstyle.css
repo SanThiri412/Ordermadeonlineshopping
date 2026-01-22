@@ -1,0 +1,175 @@
+.header-bar .navbar-brand {
+    font-weight: bold;
+    color: #495057;
+}
+.header-bar .nav-link {
+    color: #495057;
+}
+.main-content {
+    background-color: #f8f6f7;
+    border: 1px solid #dee2e6;
+    padding: 2rem;
+}
+
+/* プロフィールアイコンの調整 */
+.profile-icon {
+    /* 調整のためfont-sizeを削除 */
+    /* font-size: 5rem; */
+    margin-top: 2rem; /* 自己紹介ボックスの垂直中央に近い位置に配置 */
+}
+/* ワイヤーフレームに合わせて左側にアイコンを配置し、自己紹介ボックスと横並びにするための調整 */
+.row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+}
+/* 自己紹介ボックスの調整 */
+.intro-box {
+    background-color: #dbeffc; /* 画像に合わせた水色 */
+    border: 1px solid #bce0f8;
+    border-radius: 0.5rem; /* ワイヤーフレームに合わせて少し丸みを減らす */
+    height: 180px; /* ワイヤーフレームに合わせて高さを調整 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem; /* アイコンとの位置を調整 */
+    margin-bottom: 2rem; /* 下のセクションとの間隔を調整 */
+}
+.intro-box h2 {
+    background-color: #ffffff;
+    padding: 0.5rem 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333; /* 文字色を濃く */
+    border-radius: 0.25rem; /* 角を少し丸く */
+}
+/* end 自己紹介ボックスの調整 */
+
+/* おすすめ商品と出品商品の見出し */
+.recommendations h3,
+.exhibited-products h3 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #495057;
+    margin-bottom: 1.5rem;
+    /* ワイヤーフレームの「おすすめ商品」に合わせて背景色なし */
+}
+
+/* 商品カード */
+.product-card {
+    text-align: center;
+    /* 商品カードのコンテンツが中央寄せになるように調整 */
+}
+.product-image-placeholder {
+    width: 100%;
+    /* height: 120px; <--- 削除またはコメントアウト */
+    /* 縦横比を1:1にするための設定 (画像が正方形に見えるように) */
+    padding-top: 100%; /* 高さの代わりに幅に対する100%のパディングで正方形を確保 */
+    
+    position: relative; /* imgタグを絶対配置するための基準にする */
+    overflow: hidden; /* 画像が枠をはみ出さないように */
+    
+    background-color: #f8f6f7; /* 画像がない場合の背景色（明るめに変更） */
+    border: 1px solid #ced4da;
+    /* display: flex; <--- 削除またはコメントアウト */
+    /* justify-content: center; <--- 削除またはコメントアウト */
+    /* align-items: center; <--- 削除またはコメントアウト */
+    
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+}
+/* プレースホルダーのアイコンは削除したので、このスタイルも削除またはコメントアウト */
+/*
+.product-image-placeholder i {
+    font-size: 3rem;
+    color: #6c757d;
+}
+*/
+/* --- 新規追加 --- */
+/* 商品画像自体のスタイル */
+.product-image-placeholder .product-img {
+    position: absolute; /* 親要素 (.product-image-placeholder) の左上を基準に配置 */
+    top: 0;
+    left: 0;
+    width: 100%; /* 親要素の幅いっぱい */
+    height: 100%; /* 親要素の高さいっぱい */
+    object-fit: cover; /* 縦横比を維持したまま、枠全体を埋める（画像が切れる可能性があるが、見た目が整う） */
+    display: block;
+}
+.product-card p {
+    font-size: 0.85rem; /* 少し小さく */
+    color: #212529;
+    margin-bottom: 0; /* マージンをリセット */
+}
+
+/* 矢印ナビゲーションのスタイル */
+.product-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.5rem; /* アイコンサイズを大きく */
+    color: #495057;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0.7; /* ワイヤーフレームの薄い水色に近づける */
+    transition: opacity 0.2s;
+}
+
+.product-nav:hover {
+    opacity: 1;
+}
+
+.prev-nav {
+    left: -20px; /* 親要素の左端の外側に配置 */
+}
+
+.next-nav {
+    right: -20px; /* 親要素の右端の外側に配置 */
+}
+
+/* 商品一覧を囲むrowの左右に矢印を配置するための調整 */
+.recommendations,
+.exhibited-products {
+    /* position-relativeをHTMLで付与 */
+    /* 商品一覧の領域を矢印分だけ左右に広げる */
+    padding: 0 10px; 
+}
+
+/* col-md-10の外側に出るように調整 */
+@media (min-width: 768px) {
+    .prev-nav {
+        left: -35px; /* 左端の外側にもっと出す */
+    }
+
+    .next-nav {
+        right: -35px; /* 右端の外側にもっと出す */
+    }
+}
+
+/* Custom Scroll Behavior for Product Lists */
+/* rowを横スクロール可能にし、アイテムを折り返さない設定 */
+.recommendations .row,
+.exhibited-products .row {
+    flex-wrap: nowrap; /* 商品を折り返さないようにする */
+    overflow-x: auto; /* 横スクロールを可能にする */
+    -webkit-overflow-scrolling: touch; /* iOSでのスクロールをスムーズにする */
+    gap: 15px; /* 商品間の隙間を制御 (Bootstrap g-3と競合する可能性あり) */
+}
+
+/* col-md-3の幅を固定し、スクロール時にアイテムが途切れないようにする */
+.recommendations .col-md-3,
+.exhibited-products .col-md-3 {
+    flex-shrink: 0; /* 幅を縮めない */
+    width: 25%; /* 4つ表示するために25%に固定 */
+}
+
+/* スクロールバーを非表示にする（オプション） */
+.recommendations .row::-webkit-scrollbar,
+.exhibited-products .row::-webkit-scrollbar {
+    display: none;
+}
+.recommendations .row,
+.exhibited-products .row {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

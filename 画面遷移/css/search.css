@@ -1,0 +1,198 @@
+@charset "utf-8";
+
+/* ヘッダー（必要なら調整） */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+}
+.header h1 {
+    font-size: 16px;
+    margin: 0;
+}
+.header .login-link {
+    font-size: 14px;
+    text-decoration: none;
+    color: #333;
+}
+
+/* コンテナ */
+.search-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 24px 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* 検索タイプ */
+.search-type {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+.search-type input[type="radio"] {
+    margin-right: 4px;
+}
+
+/* キーワード入力 */
+.search-input-wrapper {
+    position: relative;
+    margin-bottom: 14px;
+}
+.search-input-wrapper input[type="text"] {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    box-sizing: border-box;
+}
+.search-input-wrapper .search-icon {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23888888" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>');
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+}
+
+/* フィルタ */
+fieldset.filters {
+    border: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+fieldset.filters:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+fieldset.filters select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #f9f9f9;
+}
+
+/* 検索ボタン */
+.search-button-wrapper {
+    margin-top: 8px;
+}
+.search-button {
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 25px;
+    background-color: #0047ab;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.25s;
+}
+.search-button:hover {
+    background-color: #003a8f;
+}
+
+/* ドロップダウン */
+.dropdown-multiselect {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-top: 4px;
+}
+.dropdown-toggle {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+.dropdown-toggle::after {
+    display: none !important;
+    content: none !important;
+}
+.dropdown-toggle:hover {
+    background-color: #f6f6f6;
+}
+.dropdown-label-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 12px;
+}
+.dropdown-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #0047ab;
+    transition: transform 0.2s ease;
+}
+.dropdown-toggle.open .dropdown-icon {
+    transform: rotate(180deg);
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 20;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    width: 100%;
+    max-height: 260px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.10);
+    font-size: 14px;
+}
+.dropdown-menu.show {
+    display: block;
+}
+
+/* 素材チェックボックス（標準チェック＋3列） */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px 8px;
+}
+.material-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: background-color 0.15s;
+    white-space: nowrap;
+}
+.material-item:hover {
+    background-color: #eef3ff;
+}
+
+@media (max-width: 480px) {
+    .checkbox-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

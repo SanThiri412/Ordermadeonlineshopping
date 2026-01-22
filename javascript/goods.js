@@ -15,19 +15,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const unitPrice = parseInt(productRoot.dataset.unitPrice, 10) || 0;
+    const unitPrice = parseInt(productRoot.dataset.unitPrice, 10) || 0;
+    const stock = parseInt(productRoot.dataset.stock, 10);
 
         const decreaseBtn = document.getElementById('decrease-btn');
         const increaseBtn = document.getElementById('increase-btn');
         const quantityDisplay = document.getElementById('quantity');
-        const totalPriceElem = document.getElementById('total-price');
+    const totalPriceElem = document.getElementById('total-price');
+    const quantityInput = document.getElementById('quantity-input'); // hidden input for form submission
+    const submitButton = productRoot.querySelector('form button[type="submit"]');
 
         if (!quantityDisplay || !totalPriceElem) {
             console.warn('商品詳細ページ：数量または金額要素が見つかりません');
             return;
         }
 
-        let quantity = 1;
+    let quantity = 1;
         const q = parseInt(quantityDisplay.textContent, 10);
         if (!Number.isNaN(q) && q > 0) {
             quantity = q;
@@ -45,20 +48,80 @@ document.addEventListener('DOMContentLoaded', function () {
                     quantity--;
                     quantityDisplay.textContent = String(quantity);
                     updatePrice();
+                    if (quantityInput) quantityInput.value = String(quantity);
+                    // re-enable increase if it was disabled and we're below stock
+                    if (increaseBtn && typeof stock === 'number' && !Number.isNaN(stock)) {
+                        if (quantity < stock) increaseBtn.disabled = false;
+                    }
                 }
             });
         }
 
         if (increaseBtn) {
             increaseBtn.addEventListener('click', function () {
-                quantity++;
-                quantityDisplay.textContent = String(quantity);
-                updatePrice();
+                // If stock is defined, do not allow exceeding it
+                if (typeof stock === 'number' && !Number.isNaN(stock)) {
+                    if (quantity < stock) {
+                        quantity++;
+                        quantityDisplay.textContent = String(quantity);
+                        if (quantityInput) quantityInput.value = String(quantity);
+                        updatePrice();
+                        // if reached stock, disable increase
+                        if (quantity >= stock) {
+                            increaseBtn.disabled = true;
+                        }
+                    } else {
+                        // optionally give feedback
+                        // alert('在庫数に達しました');
+                    }
+                } else {
+                    quantity++;
+                    quantityDisplay.textContent = String(quantity);
+                    if (quantityInput) quantityInput.value = String(quantity);
+                    updatePrice();
+                }
             });
         }
 
         // 初期表示
         updatePrice();
+        // 初期 hidden input 同期
+        if (quantityInput) quantityInput.value = String(quantity);
+        
+        // 在庫があるか確認。売り切れなら購入ボタンを無効化、増減ボタンも制御
+        if (typeof stock === 'number' && !Number.isNaN(stock)) {
+            if (stock <= 0) {
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = '売り切れ';
+                }
+                if (increaseBtn) increaseBtn.disabled = true;
+            } else {
+                // もし初期 quantity が在庫以上なら調整
+                if (quantity >= stock) {
+                    if (increaseBtn) increaseBtn.disabled = true;
+                }
+            }
+        }
+        
+        // フォーム送信時：売り切れ判定
+        const form = productRoot.closest('main').querySelector('form') || 
+                     document.querySelector('form[id*="cart"]') ||
+                     productRoot.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (stock <= 0) {
+                    e.preventDefault();
+                    alert('申し訳ありませんが、この商品は売り切れです。');
+                    return false;
+                }
+                if (quantity > stock) {
+                    e.preventDefault();
+                    alert('選択数量が在庫を超えています。在庫数：' + stock);
+                    return false;
+                }
+            });
+        }
     })();
 
     // ==============================
@@ -120,105 +183,33 @@ document.addEventListener('DOMContentLoaded', function () {
             updatePrice();
         });
     })();
-
-    // ==============================
-    // ② 画像スライダー（商品詳細ページ）
-    // ==============================
-    const imgEl   = document.getElementById('carousel-image');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const dotsWrap = document.getElementById('carousel-dots');
-
-    // PHPから埋め込んだ画像配列を取得
-    const IMAGES = Array.isArray(window.PRODUCT_IMAGES) && window.PRODUCT_IMAGES.length
-        ? window.PRODUCT_IMAGES
-        : (imgEl ? [imgEl.getAttribute('src')] : []);
-
-    console.log('IMAGES:', IMAGES);
-
-    if (!imgEl || IMAGES.length === 0) {
-        console.warn('スライダー初期化失敗: 画像または要素が見つかりません');
-        return; // ここで return しても上の数量処理はすでに実行済みなのでOK
-    }
-
-    let idx = 0;
-
-    // ドット生成
-    function buildDots() {
-        if (!dotsWrap) return;
-        dotsWrap.innerHTML = '';
-        IMAGES.forEach((_, i) => {
-            const b = document.createElement('button');
-            b.type = 'button';
-            b.className = 'dot' + (i === 0 ? ' active' : '');
-            b.setAttribute('aria-label', (i + 1) + '枚目へ');
-            b.addEventListener('click', () => goto(i));
-            dotsWrap.appendChild(b);
-        });
-    }
-
-    function updateDots() {
-        if (!dotsWrap) return;
-        const dots = dotsWrap.querySelectorAll('.dot');
-        dots.forEach((d, i) => {
-            d.classList.toggle('active', i === idx);
-        });
-    }
-
-    function goto(n) {
-        if (!imgEl) return;
-        idx = (n + IMAGES.length) % IMAGES.length;  // ループ
-        imgEl.style.opacity = '0';
-
-        setTimeout(() => {
-            imgEl.src = IMAGES[idx];
-            imgEl.onload = () => {
-                imgEl.style.opacity = '1';
-            };
-            updateDots();
-        }, 80);
-    }
-
-    // ボタン操作
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            goto(idx - 1);
-        });
-    }
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            goto(idx + 1);
-        });
-    }
-
-    // キーボード左右
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft')  goto(idx - 1);
-        if (e.key === 'ArrowRight') goto(idx + 1);
-    });
-
-    // スワイプ操作（スマホ）
-    if (imgEl) {
-        let startX = null;
-        imgEl.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-        }, { passive: true });
-
-        imgEl.addEventListener('touchend', (e) => {
-            if (startX === null) return;
-            const diff = e.changedTouches[0].clientX - startX;
-            if (Math.abs(diff) > 40) {
-                if (diff < 0) {
-                    goto(idx + 1); // 左スワイプ → 次へ
-                } else {
-                    goto(idx - 1); // 右スワイプ → 前へ
-                }
-            }
-            startX = null;
-        });
-    }
-
-    // 初期化
-    buildDots();
-    updateDots();
 });
+
+// ==============================
+// カートページ：削除ボタン（JS → POST）
+// ==============================
+(function () {
+    const cartRoot = document.getElementById('cart-root');
+    if (!cartRoot) return;   // cart ページでなければ停止
+
+    const deleteButtons = cartRoot.querySelectorAll('.delete-button');
+
+    deleteButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+
+            // この削除ボタンが入っている form を取得
+            const form = btn.closest("form");
+            if (!form) return;
+
+            // action=delete を form に追加
+            const actionInput = document.createElement("input");
+            actionInput.type = "hidden";
+            actionInput.name = "action";
+            actionInput.value = "delete";
+            form.appendChild(actionInput);
+
+            // 送信（PHP へ）
+            form.submit();
+        });
+    });
+})();

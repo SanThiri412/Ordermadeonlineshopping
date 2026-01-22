@@ -1,10 +1,45 @@
+<?php
+    require_once './helpers/MemberDAO.php'; 
+    require_once 'helpers/OkiniiriDAO.php';
+    session_start();
+    if(!isset($_SESSION['member'])){
+        header('Location:login.php');
+        exit;
+    }
+   $member=$_SESSION['member'];
 
+    $member=$_SESSION['member'];
+    $OkiniiriDAO = new OkiniiriDAO();
+    $goods_list= $OkiniiriDAO->get_goods_Okiniiri_by_memberid($member->member_id);
+    $member_list= $OkiniiriDAO->get_member_Okiniiri_by_memberid($member->member_id);
+
+    if($_SERVER['REQUEST_METHOD']==='POST'){
+        if(isset($_POST['delete_g'])){
+
+            $goodscode=$_POST['favorite_goodsCode'];
+
+            $OkiniiriDAO=new OkiniiriDAO();
+            $OkiniiriDAO->goods_delete($member->member_id,$goodscode);
+      }else if(isset($_POST['delete_m'])){
+           $favorite_member_id = $_POST['favorite_member_id'];
+
+            $OkiniiriDAO=new OkiniiriDAO();
+            $OkiniiriDAO->member_delete($favorite_member_id,$member->member_id);
+      }
+      header("Location:".$_SERVER['PHP_SELF']);
+      exit;
+    }
+?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/background.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    
     
     <title>お気に入り</title>
     <style>
@@ -13,8 +48,6 @@
         .column {
                 height: 80vh;
                 width: 80%;
-                margin-left: 100px;
-                margin-right: 100px;
                 }
                 @media all and (min-width: 500px) {
                                 .wrapper {
@@ -24,10 +57,30 @@
             .image a:hover{
                 opacity: .6;
             }
+            .border {
+                flex: 1 1 auto; /* 子要素がスクロールできるように */
+                overflow: auto;
+            }
         /* セクションタイトル */
-        h1 { text-align: center; margin: 200px; padding: 10px 0; background-color: #f7f3e8; color: #a08c5c; border: 1px solid #a08c5c; }
+                h1 {
+                max-width: 600px;        /* 最大幅 */
+                margin: 20px auto;
+                padding: 10px 0;
+                background-color: #f7f3e8;
+                color: #a08c5c;
+                border: 1px solid #a08c5c;
+                text-align: center;
+            }
+
+
         h2 { text-align: center; margin: 20px; padding: 10px 0; background-color: #f7f3e8; color: #a08c5c; border: 1px solid #a08c5c; }
-        
+        h4 { text-align: center; margin: 20px; padding: 10px 0; background-color: #f7f3e8; color: #a08c5c;}
+        .okiniiri-container {
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+/*こ*/
         .item-card { 
             background-color: white; 
             border: 1px solid #ddd; 
@@ -62,8 +115,7 @@
             border-radius: 50%;  /* 円形にする */
             position: relative;  /* 基準値とする */
             overflow: hidden;
-        }
-
+    }
         .item-details { flex-grow: 1; }
         .item-details p { margin: 3px 0; font-size: 0.9em; }
         .item-details strong { font-size: 1.1em; display: block; margin-bottom: 5px; }
@@ -71,58 +123,67 @@
 </head>
 <body>
 <?php include "header.php"; ?>
-
-<h1>お気に入り</h1>
-   <div class="wrapper">
-     <div class="column">
-        <h2>商品</h2>
-            <div class="border rouded p-3bg-white overflow-auto" style="max-height: 600px;">
-                <?php
-                // PHPのダミーデータ（実際のシステムではデータベースから取得）
-                $purchase_history = [
-                    ['name' => '商品名A', 'purchase_date' => '2025/10/01', 'author' => '佐藤', 'shipping_date' => '2025/10/03','img'=>'<img src="images/作家１(ゴールド)/0003.jpg" width="90px" height="90px">'],
-                    ['name' => '商品名B', 'purchase_date' => '2025/09/25', 'author' => '田中', 'shipping_date' => '2025/09/27','img'=>'<img src="images/作家１(ゴールド)/0003.jpg" width="90px" height="90px">'],
-                    ['name' => '商品名B', 'purchase_date' => '2025/09/25', 'author' => '田中', 'shipping_date' => '2025/09/27','img'=>'<img src="images/作家１(ゴールド)/0003.jpg" width="90px" height="90px">'],
-                    ['name' => '商品名B', 'purchase_date' => '2025/09/25', 'author' => '田中', 'shipping_date' => '2025/09/27','img'=>'<img src="images/作家１(ゴールド)/0003.jpg" width="90px" height="90px">'],
-                    ['name' => '商品名B', 'purchase_date' => '2025/09/25', 'author' => '田中', 'shipping_date' => '2025/09/27','img'=>'<img src="images/作家１(ゴールド)/0003.jpg" width="90px" height="90px">']
-                ];
-                foreach ($purchase_history as $item) {                
-                    ?>
-                    <div class="item-card">
-                            <figure class="image">
-                                <a href="goods.php"><div class="item-image"><?php echo($item['img']); ?></div></a>
-                            </figure>
-                        <div class="item-details">
-                            <strong><?php echo htmlspecialchars($item['name']); ?></strong>
-                        </div>
-                    </div>
-                <?php } ?>
-            </div>
-        </div>
+    <div class="okiniiri-container">
+        <h1 >お気に入り</h1>
+        <div class="wrapper">
             <div class="column">
-                <h2>作家</h2>
-                    <div class="border rouded p-3bg-white overflow-auto" style="max-height: 400px;">
-                        <?php
-                            $order_history = [
-                                ['name' => 'ぎん', 'img'=>'<img src="images/作家２(シルバー)/00アイコン.jpg" width="90px" height="90px">'],
-                                ['name' => 'つき', 'img'=>'<img src="images/作家４(月)/00アイコン.jpg" width="90px" height="90px">']
-                            ];
-                            foreach ($order_history as $item) {
-                                ?>
+                <h2>商品</h2>
+                    <div class="border rounded p-3 bg-white overflow-auto" style="max-height: 650px;">
+                        <?php if (empty($goods_list)) { ?>
+                            <h4>お気に入り商品なし</h4>
+                        <?php } else { ?>
+                            <?php foreach ($goods_list as $goods) { ?>
                                 <div class="item-card">
                                     <figure class="image">
-                                        <a href="explanation.php"><div class="item-image-maru"><?php echo($item['img']); ?></div></a>
+                                        <a href="goods.php?goodscode=<?= $goods->favorite_goodsCode ?>">
+                                            <div class="item-image">
+                                                <img src="images/<?= $goods->goods_image ?>" width="90" height="90">
+                                            </div>
+                                        </a>
                                     </figure>
                                     <div class="item-details">
-                                        <strong><?php echo htmlspecialchars($item['name']); ?></strong>
+                                        <strong><?= $goods->goodsName ?></strong>
                                     </div>
+                                    <form action="" method="post">
+                                        <input type="hidden" name="favorite_goodsCode" value="<?= $goods->favorite_goodsCode ?>">
+                                        <input type="submit" class="btn btn-primary btn-sm" name="delete_g" value="削除">
+                                    </form>
                                 </div>
+                            <?php } ?>
                         <?php } ?>
-                    </div>
+                     </div>
+            </div>
+        <div class="column">
+            <h2>作家</h2>
+                <div class="border rounded p-3 bg-white overflow-auto" style="max-height: 650px;">
+                    <?php if (empty($member_list)) { ?>
+                        <h4>お気に入り作家なし</h4>
+                    <?php } else { ?>
+                        <?php foreach ($member_list as $list) {?>
+                            <div class="item-card">
+                                <figure class="image">
+                                    <a href="explanation.php?artist_id=<?=$list->favorite_member_id; ?>">
+                                        <div class="item-image-maru">
+                                            <img src="images/<?php echo htmlspecialchars($list->member_image); ?>" width="90" height="90">
+                                        </div>
+                                    </a>
+                                </figure>
+                                    <div class="item-details">
+                                        <strong><?php echo htmlspecialchars($list->nickName); ?></strong>
+                                    </div>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="favorite_member_id" value="<?php echo $list->favorite_member_id; ?>">
+                                            <input type="submit" class="btn btn-primary btn-sm" name="delete_m" value="削除">
+                                        </form>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
+                </div>
             </div>
         </div>
-    </div>
 
+</script>
 </body>
 </html>
-                            
+
+ 

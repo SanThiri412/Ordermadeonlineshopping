@@ -87,24 +87,36 @@ fieldset.filters select {
     background-color: #f9f9f9;
 }
 
-/* 検索ボタン */
+/* 検索ボタン・リセットボタン */
 .search-button-wrapper {
     margin-top: 8px;
+    display: flex;
+    gap: 12px;
 }
+
 .search-button {
-    width: 100%;
-    padding: 11px;
-    border: none;
-    border-radius: 25px;
-    background-color: #0047ab;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.25s;
+    flex: 1;
 }
+
 .search-button:hover {
     background-color: #003a8f;
+}
+
+.reset-button {
+    flex: 1;
+    padding: 10px 20px;
+    border: 1px solid #999;
+    background-color: #f5f5f5;
+    color: #333;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.reset-button:hover {
+    background-color: #e8e8e8;
+    border-color: #666;
 }
 
 /* ドロップダウン */

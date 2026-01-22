@@ -140,63 +140,48 @@ class GoodsDAO
         return (int)($row['cnt'] ?? 0);
     }
 
-    public function searchByArtists(array $artistNames, int $limit = 8, int $offset = 0): array
+    public function searchByArtists(array $artistNames, int $limit = 1000, int $offset = 0): array
     {
         if (empty($artistNames)) return [];
 
         $dbh = DAO::get_db_connect();
         $orderBy = $this->getOrderByExpr();
 
-        $params = [];
-        $uniq = array_values(array_unique($artistNames));
+        // ひらがな変換用クロージャ
+        $toHiragana = function($str) {
+            $str = mb_convert_kana($str, 'c', 'UTF-8'); // 全角カタカナ
+            $str = mb_convert_kana($str, 'Hc', 'UTF-8'); // 半角→全角カタカナ
+            $str = mb_convert_kana($str, 'KVa', 'UTF-8'); // カタカナ→ひらがな
+            return mb_convert_kana($str, 's', 'UTF-8'); // スペース統一
+        };
 
-        $namePlaceholders = [];
-        $nickPlaceholders = [];
-        foreach ($uniq as $i => $name) {
-            $phName = ":name{$i}";
-            $phNick = ":nick{$i}";
-            $namePlaceholders[] = $phName;
-            $nickPlaceholders[] = $phNick;
-            $params[$phName] = $name;
-            $params[$phNick] = $name;
-        }
-
-        $from = $offset + 1;
-        $to = $offset + $limit;
-
+        // まず全件取得
         $sql = "
-            WITH GoodsCTE AS (
-                SELECT
-                    g.goodsCode,
-                    g.goodsName,
-                    g.price,
-                    g.goods_image,
-                    g.genre,
-                    g.color,
-                    g.goodsText,
-                    ROW_NUMBER() OVER (ORDER BY {$orderBy}) AS rn
-                FROM Goods g
-                INNER JOIN member m ON g.member_id = m.member_id
-                WHERE (m.name IN (" . implode(', ', $namePlaceholders) . ")
-                       OR m.nickName IN (" . implode(', ', $nickPlaceholders) . "))
-                       AND g.stock >= 0
-                       AND g.sellFlag = 1
-            )
-            SELECT goodsCode, goodsName, price, goods_image, genre, color, goodsText
-            FROM GoodsCTE
-            WHERE rn BETWEEN :from AND :to
-            ORDER BY rn
+            SELECT g.goodsCode, g.goodsName, g.price, g.goods_image, g.genre, g.color, g.goodsText, m.name AS member_name, m.nickName AS member_nick
+            FROM Goods g
+            INNER JOIN member m ON g.member_id = m.member_id
+            WHERE g.stock >= 0 AND g.sellFlag = 1
+            ORDER BY g.recommend DESC, g.goodsCode DESC
         ";
-
         $stmt = $dbh->prepare($sql);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value, PDO::PARAM_STR);
-        }
-        $stmt->bindValue(':from', $from, PDO::PARAM_INT);
-        $stmt->bindValue(':to', $to, PDO::PARAM_INT);
-
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // PHP側でひらがな変換してフィルタ
+        $filtered = [];
+        foreach ($all as $row) {
+            $name_hira = $toHiragana($row['member_name'] ?? '');
+            $nick_hira = $toHiragana($row['member_nick'] ?? '');
+            foreach ($artistNames as $keyword) {
+                $kw_hira = $toHiragana($keyword);
+                if (mb_strpos($name_hira, $kw_hira) !== false || mb_strpos($nick_hira, $kw_hira) !== false) {
+                    $filtered[] = $row;
+                    break;
+                }
+            }
+        }
+        // limit/offset対応
+        return array_slice($filtered, $offset, $limit);
     }
 
     public function countByArtists(array $artistNames): int
@@ -413,9 +398,11 @@ class GoodsDAO
     $order = "ORDER BY recommend DESC, goodsCode DESC"; // おすすめ順
     if (!empty($filters['sort'])) {
         if ($filters['sort'] === 'price_asc') {
-            $order = "ORDER BY price ASC";
+            $order = "ORDER BY price ASC, goodsCode DESC";
         } elseif ($filters['sort'] === 'price_desc') {
-            $order = "ORDER BY price DESC";
+            $order = "ORDER BY price DESC, goodsCode DESC";
+        } else {
+            $order = "ORDER BY recommend DESC, goodsCode DESC";
         }
     }
 

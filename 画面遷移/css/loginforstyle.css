@@ -1,0 +1,106 @@
+div{
+    html, body {
+            height: 100%; /* htmlとbodyの高さをビューポートいっぱいに設定 */
+            margin: 0;
+            padding: 0;
+        }
+     
+        .login-wrapper {
+            min-height: 100vh; /* ビューポートの高さいっぱいに設定して、中央揃えを有効にする */
+            margin: 0;
+            padding: 0;
+        }
+        /* ==================================== */
+        /* 以降、既存のカスタムCSS */
+        /* ==================================== */
+        
+        /* メインカードのスタイル */
+        .main-card {
+            border-radius: 0;
+            box-shadow: none; /* 不要な影を削除 */
+        }
+        /* カードボディ内のパディングを調整 */
+        .main-card .card-body {
+            padding: 1.5rem;
+        }
+
+        /* ラベルのスタイル調整 */
+        .form-label {
+            font-size: 0.9rem; /* ラベルのフォントサイズ */
+            color: #333; /* ラベルの文字色 */
+            font-weight: normal; /* 太字ではなく通常 */
+            margin-bottom: 0.25rem; /* 下の入力欄との間隔 */
+        }
+
+        /* フォーム入力欄のカスタムスタイル */
+        .form-control {
+            border-radius: 0; /* 角を四角く */
+            border: 1px solid #a6a6a6; /* ボーダー色調整 */
+            box-shadow: none; /* デフォルトの影を削除 */
+            padding: 0.5rem 0.75rem; /* パディング調整 */
+            height: 38px; /* 高さ調整 */
+            font-size: 0.9rem; /* フォントサイズ調整 */
+            /* width: 200px; を削除またはコメントアウト。Bootstrapのグリッドで幅が設定されるため。 */
+        }
+        .form-control:focus {
+            border-color: #555; /* フォーカス時のボーダー色 */
+            box-shadow: 0 0 0 0.2rem rgba(85, 85, 85, 0.25); /* フォーカス時の影 */
+        }
+        /* プレースホルダーのスタイル */
+        .form-control::placeholder {
+            color: #a0a0a0; /* プレースホルダーの色を薄く */
+            opacity: 1; /* Firefoxなどで薄くならないように */
+        }
+
+        /* ログインボタンのカスタムスタイル */
+    
+
+        /* 区切り線のスタイル */
+        .form-divider {
+            margin: 1.5rem 0;
+            border: 0;
+            border-top: 1px solid #212020;
+        }
+        
+        /* 新規登録セクションのスタイル */
+        .register-section {
+            padding: 1.5rem; /* パディング */
+            text-align: left;
+        }
+        .register-section h6 {
+            color: #333; /* 文字色 */
+            font-size: 1rem; /* フォントサイズ */
+            font-weight: bold; /* 太字 */
+            margin-bottom: 0.5rem;
+        }
+        .register-section p {
+            color: #555; /* 文字色 */
+            font-size: 0.9rem; /* フォントサイズ */
+            margin-bottom: 1rem;
+        }
+
+        /* 新規登録ボタンのカスタムスタイル */
+        .btn-register {
+            background-color: #e7e7e7; /* 画像のボタン背景色 */
+            border: 1px solid #b3b3b3; /* 画像のボタンボーダー */
+            color: #111;
+            padding: 0.5rem 1.5rem;
+            border-radius: 3px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.95rem; /* フォントサイズ */
+            transition: background-color 0.1s ease-in-out, border-color 0.1s ease-in-out;
+            min-height: 38px; /* ボタンの最小高さ */
+            justify-content: center; /* アイコンとテキストを中央揃え */
+        }
+        .btn-register:hover {
+            background-color: #dcdcdc; /* ホバー時の色を少し濃く */
+            border-color: #a0a0a0; /* ホバー時のボーダー色 */
+        }
+        .btn-register .bi {
+            color: #5cb85c; /* 緑色のチェックアイコン */
+            margin-right: 0.5rem;
+            font-size: 1.1rem; /* アイコンサイズ調整 */
+        }
+}
