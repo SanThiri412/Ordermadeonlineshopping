@@ -1,5 +1,5 @@
 <?php
-// 1. まず最初にセッションを開始（外部ファイルを読み込む前！）
+ob_start(); // 出力をバッファリング（貯めておく）
 if(session_status() === PHP_SESSION_NONE){
     session_start();
 }
