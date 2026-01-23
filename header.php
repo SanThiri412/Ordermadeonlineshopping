@@ -1,14 +1,16 @@
 <?php
-    require_once './helpers/MemberDAO.php';
+// 1. まず最初にセッションを開始（外部ファイルを読み込む前！）
+if(session_status() === PHP_SESSION_NONE){
+    session_start();
+}
 
-    if(session_status()===PHP_SESSION_NONE){
-        session_start();
-    }
-    if(isset($_SESSION['member'])){
-        $member=$_SESSION['member'];
-    }
+// 2. その後に外部ファイルを読み込む
+require_once './helpers/MemberDAO.php';
+
+if(isset($_SESSION['member'])){
+    $member = $_SESSION['member'];
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
