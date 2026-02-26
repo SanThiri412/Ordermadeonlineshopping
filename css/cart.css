@@ -1,0 +1,164 @@
+/* 1. ワイヤーフレームのブラウザ枠 */
+.browser-frame {
+    border: 1px solid #B0B0B0;
+    background: #F8F8F8;
+    border-radius: 8px 8px 0 0;
+    margin: 2rem auto;
+    max-width: 1000px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* 2. カートヘッダー */
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    padding: 0 2rem;
+}
+.cart-header h1 {
+    background-color: #0d6efd;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    border-radius: 4px;
+    margin: 0;
+    font-weight: bold;
+}
+.continue-shopping a {
+    text-decoration: underline;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* 3. カラムヘッダー */
+.cart-columns {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr;
+    gap: 5rem;
+    padding: 0 2rem 0.5rem;
+    border-bottom: 1px solid #E0E0E0;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+.col-product { grid-column: 2; }
+.col-quantity { grid-column: 3; text-align: center; }
+.col-total { grid-column: 4; text-align: left; }
+
+/* 4. 商品行 */
+.cart-item-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #E9E9E9;
+}
+
+/* 5. 商品画像 */
+.item-image {
+    text-align: center;
+    width: 100px;
+
+}
+.item-image a {
+    display: inline-block;
+}
+.product-thumbnail {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 6. 商品詳細 */
+.item-details .product-name {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+.item-details .price {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* 7. 数量フォーム */
+.item-quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* 8. 数量ボタン */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.quantity-control .decrease-btn,
+.quantity-control .increase-btn {
+    background: none;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.quantity-control .decrease-btn:hover,
+.quantity-control .increase-btn:hover {
+    background-color: #f4f4f4;
+}
+.quantity-control .quantity-display {
+    padding: 0 0.5rem;
+    font-size: 1rem;
+    min-width: 30px;
+    text-align: center;
+}
+.quantity-control .decrease-btn { border-right: 1px solid #ccc; }
+.quantity-control .increase-btn { border-left: 1px solid #ccc; }
+
+/* 9. ゴミ箱ボタン */
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.25rem;
+    color: #555;
+}
+.delete-button:hover {
+    color: #dc3545;
+}
+
+/* 10. 合計金額 */
+.total-price {
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* 11. ご購入ボタン */
+.cart-summary {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding: 0 2rem 2rem;
+}
+.checkout-button {
+    background-color: #0d6efd;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+.checkout-button:hover {
+    background-color: #0b5ed7;
+}
