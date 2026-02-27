@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 ob_start(); // 出力をバッファリング（貯めておく）
 if(session_status() === PHP_SESSION_NONE){
     session_start();
@@ -11,6 +12,18 @@ if(isset($_SESSION['member'])){
     $member = $_SESSION['member'];
 }
 ?>
+=======
+    require_once './helpers/MemberDAO.php';
+
+    if(session_status()===PHP_SESSION_NONE){
+        session_start();
+    }
+    if(isset($_SESSION['member'])){
+        $member=$_SESSION['member'];
+    }
+?>
+
+>>>>>>> 562e5a8566790922276e16ed9e5c86cbb51a7c01
 <!DOCTYPE html>
 <html lang="en">
 <head>

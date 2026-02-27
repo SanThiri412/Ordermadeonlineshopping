@@ -152,6 +152,7 @@ if (!empty($genres_raw)) $active_filter_label .= ' ジャンル: ' . implode(', 
 </head>
 <body>
 <script>
+<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', function() {
     var sortSelect = document.getElementById('sort');
     if (sortSelect) {
@@ -160,6 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+=======
+// 並び順はボタン押下時のみ反映（自動送信なし）
+>>>>>>> 562e5a8566790922276e16ed9e5c86cbb51a7c01
 </script>
 <?php include "header.php"; ?>
 

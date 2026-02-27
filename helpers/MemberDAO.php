@@ -155,4 +155,10 @@ class MemberDAO
         $member = $stmt->fetchObject('Member');
         return $member !== false ? $member : null;
     }
+<<<<<<< HEAD
 }
+=======
+
+}
+?>
+>>>>>>> 562e5a8566790922276e16ed9e5c86cbb51a7c01
