@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/header_init.php';
+
 function h($s) {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
@@ -54,7 +56,7 @@ $categoryMap = [
     </style>
 </head>
 <body>
-<?php include "header.php"; ?>
+<?php include __DIR__ . '/header_display.php'; ?>
 
 <div class="search-container">
     <form action="kensaku_kekka.php" method="get" autocomplete="off">
@@ -85,7 +87,7 @@ $categoryMap = [
 
         <!-- フィルター（商品検索用） -->
         <?php if ($search_type === 'product'): ?>
-    <fieldset class="filters mb-3" id="search_filters">
+        <fieldset class="filters mb-3" id="search_filters">
             <!-- 分類 -->
             <select name="category" id="category-select" class="form-select mb-2">
                 <option value="">すべての分類</option>
@@ -133,10 +135,10 @@ $categoryMap = [
         <!-- 検索・リセットボタン -->
         <div class="search-button-wrapper mb-3">
             <button type="submit" class="btn btn-primary search-button" name="search">
-                <?php echo ($search_type === 'artist') ? '作家を検索' : '検索'; ?>
+                <?php echo ($search_type === 'artist') ? '作家���検索' : '検索'; ?>
             </button>
             <button type="reset" class="btn btn-secondary reset-button ms-2">
-                リセット
+                リセ���ト
             </button>
         </div>
     </form>

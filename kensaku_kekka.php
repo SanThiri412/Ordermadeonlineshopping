@@ -1,11 +1,10 @@
 <?php
+require_once __DIR__ . '/header_init.php';
+require_once __DIR__ . '/helpers/GoodsDAO.php';
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/helpers/GoodsDAO.php';
-require_once __DIR__ . '/helpers/DAO.php';
-
-// エスケープ関数
 function h($s) {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
@@ -23,7 +22,6 @@ $categoryMap = [
     'kanzashi' => 9, 'barrette' => 10, 'brooch' => 11, 'necktiepin' => 12, 'others' => 13
 ];
 
-// GETパラメータ取得
 $search_type = $_GET['search_type'] ?? 'product';
 $query = trim($_GET['query'] ?? '');
 $category = $_GET['category'] ?? '';
@@ -35,13 +33,11 @@ if ($category !== '' && isset($categoryMap[$category])) {
     $category_id = $categoryMap[$category];
 }
 
-// 検索フィルタ
 $filters = [];
 if ($search_type === 'product') {
     if ($query !== '') $filters['keyword'] = $query;
     if ($category !== '') $filters['category'] = $category;
 
-    // ジャンル（「すべてを選択」や空欄は条件に含めない）
     if (!empty($genres_raw)) {
         $genres_filtered = array_filter($genres_raw, function($g) {
             return $g !== '' && $g !== 'すべてを選択' && $g !== 'all';
@@ -50,9 +46,8 @@ if ($search_type === 'product') {
             $filters['genre'] = $genres_filtered;
         }
     }
-    // 色は必ず日本語で渡す
+
     if ($color !== '' && $color !== 'all' && $color !== 'すべてを選択') {
-        // $colorが英語キーなら日本語に変換、すでに日本語ならそのまま
         $filters['color'] = $colorOptions[$color] ?? $color;
     }
 }
@@ -60,24 +55,21 @@ if ($search_type === 'product') {
 $sort = $_GET['sort'] ?? 'default';
 $filters['sort'] = $sort;
 
-// GoodsDAOで検索
 $dao = new GoodsDAO();
 if ($search_type === 'artist') {
-    // 作家名検索（キーワード全体で部分一致・連続しない文字もマッチ）
     $artist_query = $query;
     $artist_names = [];
     if ($artist_query !== '') {
         $artist_names[] = $artist_query;
     }
 
-    // 並び順指定
     $order_by = 'g.recommend DESC, g.goodsCode DESC';
     if ($sort === 'price_asc') {
         $order_by = 'g.price ASC, g.goodsCode DESC';
     } elseif ($sort === 'price_desc') {
         $order_by = 'g.price DESC, g.goodsCode DESC';
     }
-    // DBから該当する商品と会員名を取得し、PHP側で柔軟な文字列マッチを行う
+
     $dbh = DAO::get_db_connect();
     $sql = "SELECT g.goodsCode, g.goodsName, g.price, g.goods_image, g.genre, g.color, g.goodsText, m.name AS member_name, m.nickName AS member_nick
             FROM Goods g
@@ -88,7 +80,6 @@ if ($search_type === 'artist') {
     $stmt->execute();
     $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // ひらがな化クロージャ
     $toHiragana = function($str) {
         $str = mb_convert_kana((string)$str, 'c', 'UTF-8');
         $str = mb_convert_kana($str, 'Hc', 'UTF-8');
@@ -106,7 +97,6 @@ if ($search_type === 'artist') {
             $kw_hira = $toHiragana($keyword);
             $kw_kata = mb_convert_kana($keyword, 'K', 'UTF-8');
             if ($kw_raw === '' && $kw_hira === '' && $kw_kata === '') continue;
-            // ニックネームのみ部分一致
             if (
                 mb_strpos($nick_raw, $kw_raw) !== false ||
                 mb_strpos($nick_hira, $kw_hira) !== false ||
@@ -117,7 +107,7 @@ if ($search_type === 'artist') {
             }
         }
     }
-    // 重複除去 + limit
+
     $unique = [];
     $result = [];
     foreach ($filtered as $r) {
@@ -131,7 +121,6 @@ if ($search_type === 'artist') {
     $page_items = $dao->search($filters);
 }
 
-// ラベル
 $page_title = '検索結果画面';
 $active_filter_label = '全商品';
 if ($category !== '') $active_filter_label = '分類: ' . h($category);
@@ -161,7 +150,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-<?php include "header.php"; ?>
+
+<?php include __DIR__ . '/header_display.php'; ?>
 
 <div class="container">
     <?php
@@ -189,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <option value="price_desc" <?php if ($sort === 'price_desc') echo 'selected'; ?>>値段が高い順</option>
         </select>
         <button type="submit" class="btn btn-outline-primary btn-sm">並び替え</button>
-        <!-- 検索条件hidden -->
         <input type="hidden" name="search_type" value="<?php echo h($search_type); ?>">
         <input type="hidden" name="category" value="<?php echo h($category); ?>">
         <input type="hidden" name="query" value="<?php echo h($query); ?>">
