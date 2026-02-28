@@ -1,7 +1,9 @@
 <?php
 ob_start();
-session_start();
-require_once './helpers/MemberDAO.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/helpers/MemberDAO.php';
 
 $member = null;
 if (isset($_SESSION['member'])) {
