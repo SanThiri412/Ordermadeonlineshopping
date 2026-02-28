@@ -1,56 +1,48 @@
 <?php
-<<<<<<< HEAD
-ob_start(); // 出力をバッファリング（貯めておく）
-if(session_status() === PHP_SESSION_NONE){
+// エラー対策：出力をバッファリング
+ob_start();
+
+// セッションが開始されていなければ開始
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. その後に外部ファイルを読み込む
 require_once './helpers/MemberDAO.php';
 
-if(isset($_SESSION['member'])){
+// ログイン状態の確認（初期値はnullにしておくのが安全です）
+$member = null;
+if (isset($_SESSION['member'])) {
     $member = $_SESSION['member'];
 }
 ?>
-=======
-    require_once './helpers/MemberDAO.php';
-
-    if(session_status()===PHP_SESSION_NONE){
-        session_start();
-    }
-    if(isset($_SESSION['member'])){
-        $member=$_SESSION['member'];
-    }
-?>
-
->>>>>>> 562e5a8566790922276e16ed9e5c86cbb51a7c01
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-</head>
-<body>
-        <style>
-        div{
+    <style>
+        body {
             background-color: #f8f6f7;
         }
     </style>
-     <nav class="navbar navbar-expand-lg navbar-white bg-white">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-white bg-white">
         <div class="container">
-            <a class="navbar-brand" href="#">
-                <a href="top.php">
+            <a class="navbar-brand" href="top.php">
                 <img src="images/ロゴ.png" alt="ロゴ" height="50">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                 aria-label="toggle navigation">
-                    <span class="navbar-togggler-icon"></span>
-                </button>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <?php if(isset($member)) : ?>
+                    <?php if (isset($member)) : ?>
                         <li class="nav-item">
                             <a href="cart.php" class="nav-link"><font color="black">カート</font></a>
                         </li>
@@ -62,7 +54,7 @@ if(isset($_SESSION['member'])){
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a href="login.php" class="nav-link" href="#"><font color="black">ログイン</font></a>
+                            <a href="login.php" class="nav-link"><font color="black">ログイン</font></a>
                         </li>
                     <?php endif; ?>
                 </ul>
