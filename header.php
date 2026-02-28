@@ -1,12 +1,8 @@
 <?php
-// エラー対策：出力をバッファリング
 ob_start();
-
-// セッションが開始されていなければ開始
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
 require_once './helpers/MemberDAO.php';
 
 // ログイン状態の確認（初期値はnullにしておくのが安全です）
