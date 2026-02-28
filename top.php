@@ -1,4 +1,9 @@
 <?php
+    // 【重要】どんな処理よりも一番最初に session_start() を呼ぶ
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
     require_once './helpers/MemberDAO.php'; // Memberクラス
     require_once './helpers/RandomDAO.php';   
   
@@ -7,7 +12,8 @@
         require_once './helpers/MemberDAO.php';
         require_once './helpers/BuyDAO.php';
 
-        session_start();
+        // ※ここにあった session_start(); は一番上に移動しました
+
         $member = $_SESSION['member'];
         $CartDAO = new CartDAO();
         $cart_list = $CartDAO->get_cart_by_memberid($member->member_id);
@@ -27,13 +33,14 @@
         header('Location: top.php?buy=success');
         exit;
     }
+    
     $random = new RandomDAO();
     $images= $random->get_random_image(6);
     
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -107,4 +114,5 @@
         <?php endfor; ?>
     </div>
     </form>
+</body>
 </html>
