@@ -3,7 +3,6 @@ ob_start();
 session_start();
 require_once './helpers/MemberDAO.php';
 
-// ログイン状態の確認（初期値はnullにしておくのが安全です）
 $member = null;
 if (isset($_SESSION['member'])) {
     $member = $_SESSION['member'];
@@ -55,5 +54,3 @@ if (isset($_SESSION['member'])) {
             </div>
         </div>
     </nav>
-</body>
-</html>
