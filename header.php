@@ -1,8 +1,6 @@
 <?php
 ob_start();
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 require_once './helpers/MemberDAO.php';
 
 // ログイン状態の確認（初期値はnullにしておくのが安全です）
