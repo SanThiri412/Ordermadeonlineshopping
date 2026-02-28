@@ -10,7 +10,25 @@ if (!isset($_SESSION['member'])) {
 
 $member = $_SESSION['member'];
 $dao = new OkiniiriDAO();
-$favorites = $dao->get_favorites($member->member_id);
+
+// 正しいメソッドを呼び出す
+$favorite_goods = $dao->get_goods_Okiniiri_by_memberid($member->member_id);
+$favorite_members = $dao->get_member_Okiniiri_by_memberid($member->member_id);
+
+// 削除処理
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['delete_goods'])) {
+        $favorite_goodsCode = (int)$_POST['favorite_goodsCode'];
+        $dao->goods_delete($member->member_id, $favorite_goodsCode);
+        header('Location: okiniiri.php');
+        exit;
+    } elseif (isset($_POST['delete_member'])) {
+        $favorite_member_id = (int)$_POST['favorite_member_id'];
+        $dao->member_delete($favorite_member_id, $member->member_id);
+        header('Location: okiniiri.php');
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -29,18 +47,49 @@ $favorites = $dao->get_favorites($member->member_id);
 <div class="container mt-4">
     <h1>お気に入り</h1>
     
-    <?php if (empty($favorites)): ?>
+    <!-- お気に入り商品 -->
+    <h2>お気に入り商品</h2>
+    <?php if (empty($favorite_goods)): ?>
         <p>お気に入りの商品はありません。</p>
     <?php else: ?>
         <div class="row">
-            <?php foreach ($favorites as $item): ?>
+            <?php foreach ($favorite_goods as $item): ?>
                 <div class="col-md-4 mb-3">
                     <div class="card">
-                        <img src="images/<?php echo htmlspecialchars($item['goods_image'] ?? 'no_image.png', ENT_QUOTES, 'UTF-8'); ?>" class="card-img-top" alt="商品画像">
+                        <img src="images/<?php echo htmlspecialchars($item->goods_image ?? 'no_image.png', ENT_QUOTES, 'UTF-8'); ?>" class="card-img-top" alt="商品画像">
                         <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($item['goodsName'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h5>
-                            <p class="card-text">¥<?php echo number_format($item['price'] ?? 0); ?></p>
-                            <a href="goods.php?goodsCode=<?php echo urlencode($item['goodsCode']); ?>" class="btn btn-primary">詳細</a>
+                            <h5 class="card-title"><?php echo htmlspecialchars($item->goodsName ?? '', ENT_QUOTES, 'UTF-8'); ?></h5>
+                            <a href="goods.php?goodsCode=<?php echo urlencode($item->favorite_goodsCode); ?>" class="btn btn-primary btn-sm">詳細</a>
+                            <form method="post" style="display:inline;">
+                                <input type="hidden" name="delete_goods" value="1">
+                                <input type="hidden" name="favorite_goodsCode" value="<?php echo $item->favorite_goodsCode; ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('削除しますか？');">削除</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+    
+    <!-- お気に入り作家 -->
+    <h2 class="mt-5">お気に入り作家</h2>
+    <?php if (empty($favorite_members)): ?>
+        <p>お気に入りの作家はいません。</p>
+    <?php else: ?>
+        <div class="row">
+            <?php foreach ($favorite_members as $artist): ?>
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <img src="images/<?php echo htmlspecialchars($artist->member_image ?? 'no_image.png', ENT_QUOTES, 'UTF-8'); ?>" class="card-img-top" alt="作家画像">
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo htmlspecialchars($artist->nickName ?? '', ENT_QUOTES, 'UTF-8'); ?></h5>
+                            <a href="explanation.php?artist_id=<?php echo urlencode($artist->favorite_member_id); ?>" class="btn btn-primary btn-sm">プロフィール</a>
+                            <form method="post" style="display:inline;">
+                                <input type="hidden" name="delete_member" value="1">
+                                <input type="hidden" name="favorite_member_id" value="<?php echo $artist->favorite_member_id; ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('削除しますか？');">削除</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -48,5 +97,6 @@ $favorites = $dao->get_favorites($member->member_id);
         </div>
     <?php endif; ?>
 </div>
+
 </body>
 </html>
