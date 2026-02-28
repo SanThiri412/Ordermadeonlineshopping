@@ -3,6 +3,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/helpers/GoodsDAO.php';
+require_once __DIR__ . '/helpers/DAO.php';
 
 // エスケープ関数
 function h($s) {
@@ -60,7 +61,6 @@ $sort = $_GET['sort'] ?? 'default';
 $filters['sort'] = $sort;
 
 // GoodsDAOで検索
-
 $dao = new GoodsDAO();
 if ($search_type === 'artist') {
     // 作家名検索（キーワード全体で部分一致・連続しない文字もマッチ）
@@ -152,7 +152,6 @@ if (!empty($genres_raw)) $active_filter_label .= ' ジャンル: ' . implode(', 
 </head>
 <body>
 <script>
-<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', function() {
     var sortSelect = document.getElementById('sort');
     if (sortSelect) {
@@ -161,14 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-=======
-// 並び順はボタン押下時のみ反映（自動送信なし）
->>>>>>> 562e5a8566790922276e16ed9e5c86cbb51a7c01
 </script>
 <?php include "header.php"; ?>
 
 <div class="container">
-    <!-- 検索条件を保持して検索画面に戻るボタン -->
     <?php
         $back_url = 'search.php?search_type=' . urlencode($search_type)
             . '&query=' . urlencode($query)
@@ -238,4 +233,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </body>
 </html>
-
