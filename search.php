@@ -138,7 +138,7 @@ $categoryMap = [
                 <?php echo ($search_type === 'artist') ? '作家���検索' : '検索'; ?>
             </button>
             <button type="reset" class="btn btn-secondary reset-button ms-2">
-                リセ���ト
+                リセット
             </button>
         </div>
     </form>
