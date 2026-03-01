@@ -1,7 +1,10 @@
 <?php
+// 1. まず最初にクラスの定義を読み込む（これが重要！）
+require_once __DIR__ . '/helpers/MemberDAO.php'; 
+
+// 2. その後にセッション（header_init）を開始する
 require_once __DIR__ . '/header_init.php';
 require_once __DIR__ . '/helpers/OkiniiriDAO.php';
-
 // ログイン確認
 if (!isset($_SESSION['member'])) {
     header('Location: login.php');
@@ -46,12 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container mt-4">
     <h1>お気に入り</h1>
+    <?php if (empty($favorite_goods) && empty($favorite_members)): ?>
+        <p class="text-muted">お気に入り登録がまだありません。</p>
+    <?php endif; ?>
     
     <!-- お気に入り商品 -->
-    <h2>お気に入り商品</h2>
-    <?php if (empty($favorite_goods)): ?>
-        <p>お気に入りの商品はありません。</p>
-    <?php else: ?>
+    <?php if (!empty($favorite_goods)): ?>
+        <h2>お気に入り商品</h2>
         <div class="row">
             <?php foreach ($favorite_goods as $item): ?>
                 <div class="col-md-4 mb-3">
@@ -73,10 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     
     <!-- お気に入り作家 -->
-    <h2 class="mt-5">お気に入り作家</h2>
-    <?php if (empty($favorite_members)): ?>
-        <p>お気に入りの作家はいません。</p>
-    <?php else: ?>
+    <?php if (!empty($favorite_members)): ?>
+        <h2 class="mt-5">お気に入り作家</h2>
         <div class="row">
             <?php foreach ($favorite_members as $artist): ?>
                 <div class="col-md-4 mb-3">
