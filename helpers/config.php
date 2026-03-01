@@ -9,8 +9,12 @@
     // 接続オプション（文字化け防止とエラー表示設定）
     $options = array(
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::SQLSRV_ATTR_ENCODING => PDO::SQLSRV_ENCODING_UTF8
     );
+    
+    // SQLSRV固有の定数が利用可能な場合のみ追加
+    if (defined('PDO::SQLSRV_ATTR_ENCODING')) {
+        $options[PDO::SQLSRV_ATTR_ENCODING] = PDO::SQLSRV_ENCODING_UTF8;
+    }
 
     try {
         // 接続テスト用

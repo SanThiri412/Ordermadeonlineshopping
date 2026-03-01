@@ -1,39 +1,64 @@
 <?php
 require_once __DIR__ . '/header_init.php';
 
-function h($s) {
-    return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+// --------- ユーティリティ関数 ---------
+/**
+ * HTML出力用エスケープ
+ * @param mixed $str
+ * @return string
+ */
+function escapeHtml($str) {
+    return htmlspecialchars((string)$str, ENT_QUOTES, 'UTF-8');
 }
 
-// GETパラメータ取得
-$search_type = $_GET['search_type'] ?? 'product';
-$query = trim($_GET['query'] ?? '');
-$category = ($search_type === 'product') ? ($_GET['category'] ?? '') : '';
-$genres = ($search_type === 'product' && isset($_GET['genre']) && is_array($_GET['genre'])) ? $_GET['genre'] : [];
-$color = ($search_type === 'product') ? ($_GET['color'] ?? '') : '';
+/**
+ * 検索タイプが商品検索かチェック
+ * @param string $type
+ * @return bool
+ */
+function isProductSearch($type) {
+    return $type === 'product';
+}
 
-// オプション定義
-$materialOptions = [
+// --------- オプション定義（定数） ---------
+define('MATERIAL_OPTIONS', [
     'すべてを選択', 'シルバー', 'ゴールド', '宝石', '天然石',
     '月', '金属', '粘土', '木製', 'レジン', 'その他'
-];
-$colorOptions = [
+]);
+
+define('COLOR_OPTIONS', [
     'silver' => 'シルバー', 'gold' => 'ゴールド',
     'blue' => '青', 'brown' => '茶', 'white' => '白', 'black' => '黒',
     'red' => '赤', 'orange' => 'オレンジ', 'green' => '緑',
-    'pink' => 'ピンク','yellow' => '黄','purple' => '紫','ivory' => 'アイボリー','beige' => 'ベージュ','other' => 'その他の色'
-];
-$categoryOptions = [
+    'pink' => 'ピンク', 'yellow' => '黄', 'purple' => '紫', 
+    'ivory' => 'アイボリー', 'beige' => 'ベージュ', 'other' => 'その他の色'
+]);
+
+define('CATEGORY_OPTIONS', [
     'necklace' => 'ネックレス', 'ring' => '指輪', 'pierce' => 'ピアス',
     'earring' => 'イヤリング', 'armlet' => '腕輪', 'bangle' => 'バングル',
     'bracelet' => 'ブレスレット', 'amulet' => 'アミュレット', 'kanzashi' => '簪',
     'barrette' => 'バレッタ', 'brooch' => 'ブローチ', 'necktiepin' => 'ネクタイピン', 'others' => 'その他'
-];
-$categoryMap = [
+]);
+
+define('CATEGORY_ID_MAP', [
     'necklace' => 1, 'ring' => 2, 'pierce' => 3, 'earring' => 4,
     'armlet' => 5, 'bangle' => 6, 'bracelet' => 7, 'amulet' => 8,
     'kanzashi' => 9, 'barrette' => 10, 'brooch' => 11, 'necktiepin' => 12, 'others' => 13
-];
+]);
+
+// --------- GETパラメータ取得と検証 ---------
+$search_type = $_GET['search_type'] ?? 'product';
+$query = trim($_GET['query'] ?? '');
+$category = isProductSearch($search_type) ? ($_GET['category'] ?? '') : '';
+$genres = (isProductSearch($search_type) && isset($_GET['genre']) && is_array($_GET['genre'])) ? $_GET['genre'] : [];
+$color = isProductSearch($search_type) ? ($_GET['color'] ?? '') : '';
+
+// ローカルスコープの便利変数
+$materialOptions = MATERIAL_OPTIONS;
+$colorOptions = COLOR_OPTIONS;
+$categoryOptions = CATEGORY_OPTIONS;
+$categoryMap = CATEGORY_ID_MAP;
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -63,12 +88,12 @@ $categoryMap = [
         <div class="search-type mb-3">
             <label>
                 <input type="radio" name="search_type" value="product" id="search_product"
-                    <?php echo ($search_type === 'product') ? 'checked' : ''; ?>>
+                    <?php echo isProductSearch($search_type) ? 'checked' : ''; ?>>
                 商品検索
             </label>
             <label>
                 <input type="radio" name="search_type" value="artist" id="search_artist"
-                    <?php echo ($search_type === 'artist') ? 'checked' : ''; ?>>
+                    <?php echo !isProductSearch($search_type) ? 'checked' : ''; ?>>
                 作家検索
             </label>
         </div>
@@ -80,20 +105,20 @@ $categoryMap = [
                 name="query"
                 id="search_query_input"
                 class="form-control"
-                placeholder="<?php echo ($search_type === 'artist') ? '作家名・キーワード' : '商品名・キーワード'; ?>"
-                value="<?php echo h($query); ?>"
+                placeholder="<?php echo isProductSearch($search_type) ? '商品名・キーワード' : '作家名・キーワード'; ?>"
+                value="<?php echo escapeHtml($query); ?>"
             >
         </div>
 
         <!-- フィルター（商品検索用） -->
-        <?php if ($search_type === 'product'): ?>
+        <?php if (isProductSearch($search_type)): ?>
         <fieldset class="filters mb-3" id="search_filters">
             <!-- 分類 -->
             <select name="category" id="category-select" class="form-select mb-2">
                 <option value="">すべての分類</option>
                 <?php foreach ($categoryOptions as $key => $label): ?>
-                    <option value="<?php echo h($key); ?>" <?php echo ($category === $key) ? 'selected' : ''; ?>>
-                        <?php echo h($label); ?>
+                    <option value="<?php echo escapeHtml($key); ?>" <?php echo ($category === $key) ? 'selected' : ''; ?>>
+                        <?php echo escapeHtml($label); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -101,7 +126,7 @@ $categoryMap = [
             <div class="dropdown-multiselect">
                 <div class="dropdown-toggle" id="genreDropdown">
                     <span class="dropdown-label-text" id="genreLabel">
-                        <?php echo !empty($genres) ? h(implode(', ', $genres)) : 'ジャンルを選択（複数可）'; ?>
+                        <?php echo !empty($genres) ? escapeHtml(implode(', ', $genres)) : 'ジャンルを選択（複数可）'; ?>
                     </span>
                     <span class="dropdown-icon">
                         <i class="bi bi-chevron-down"></i>
@@ -111,9 +136,9 @@ $categoryMap = [
                     <div class="checkbox-grid" id="material-checkbox-grid">
                         <?php foreach ($materialOptions as $mat): ?>
                             <?php $checked = (is_array($genres) && in_array($mat, $genres)) ? 'checked' : ''; ?>
-                            <label class="material-item material-<?php echo h($mat); ?>">
-                                <input type="checkbox" name="genre[]" value="<?php echo h($mat); ?>" <?php echo $checked; ?> autocomplete="off" />
-                                <span><?php echo h($mat); ?></span>
+                            <label class="material-item material-<?php echo escapeHtml($mat); ?>">
+                                <input type="checkbox" name="genre[]" value="<?php echo escapeHtml($mat); ?>" <?php echo $checked; ?> autocomplete="off" />
+                                <span><?php echo escapeHtml($mat); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -124,8 +149,8 @@ $categoryMap = [
             <select name="color" class="form-select mb-2">
                 <option value="">すべての色</option>
                 <?php foreach ($colorOptions as $key => $label): ?>
-                    <option value="<?php echo h($key); ?>" <?php echo ($color === $key) ? 'selected' : ''; ?>>
-                        <?php echo h($label); ?>
+                    <option value="<?php echo escapeHtml($key); ?>" <?php echo ($color === $key) ? 'selected' : ''; ?>>
+                        <?php echo escapeHtml($label); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -135,7 +160,7 @@ $categoryMap = [
         <!-- 検索・リセットボタン -->
         <div class="search-button-wrapper mb-3">
             <button type="submit" class="btn btn-primary search-button" name="search">
-                <?php echo ($search_type === 'artist') ? '作家���検索' : '検索'; ?>
+                <?php echo isProductSearch($search_type) ? '検索' : '作家を検索'; ?>
             </button>
             <button type="reset" class="btn btn-secondary reset-button ms-2">
                 リセット

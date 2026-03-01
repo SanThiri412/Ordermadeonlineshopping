@@ -2,48 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // ページロード時にジャンルcheckboxを必ず有効化
     var genreCheckboxes = document.querySelectorAll('input[name="genre[]"]');
     genreCheckboxes.forEach(cb => cb.disabled = false);
+    
     // 分類ごとのジャンル制御
-<<<<<<< HEAD
     // カテゴリによらず常に全ジャンル表示
     // 以前のfilterGenresByCategoryは不要
-=======
-    const categorySelect = document.getElementById("category-select");
-    function filterGenresByCategory() {
-        const category = categorySelect ? categorySelect.value : "";
-        const allLabels = document.querySelectorAll("#material-checkbox-grid label.material-item");
-        // 全て表示
-        allLabels.forEach(lbl => lbl.style.display = "block");
-
-        if (category === "others") {
-            // 分類番号13のみ表示（ウッド/レジン、天然石、ターコイズ、カボション、マーブル、レジンアート）
-            const showGenres = ["ウッド/レジン","天然石","ターコイズ","カボション","マーブル","レジンアート"];
-            allLabels.forEach(lbl => {
-                const val = lbl.querySelector("input").value;
-                lbl.style.display = showGenres.includes(val) ? "block" : "none";
-            });
-        } else if (category === "pierce") {
-            // 分類3（ピアス）→分類4（イヤリング）も表示
-            allLabels.forEach(lbl => {
-                const val = lbl.querySelector("input").value;
-                if (val === "イヤリング") {
-                    lbl.style.display = "block";
-                }
-            });
-        } else if (category === "earring") {
-            // 分類4（イヤリング）→分類3（ピアス）も表示
-            allLabels.forEach(lbl => {
-                const val = lbl.querySelector("input").value;
-                if (val === "ピアス") {
-                    lbl.style.display = "block";
-                }
-            });
-        }
-    }
-    if (categorySelect) {
-        categorySelect.addEventListener("change", filterGenresByCategory);
-        filterGenresByCategory();
-    }
->>>>>>> 562e5a8566790922276e16ed9e5c86cbb51a7c01
     const toggle       = document.getElementById("genreDropdown");
     const menu         = document.getElementById("genreMenu");
     const label        = document.getElementById("genreLabel");
@@ -127,21 +89,42 @@ document.addEventListener("DOMContentLoaded", function () {
     function toggleFilters() {
         if (!filtersField || !searchInput || !searchButton) return;
 
+        // フィルター内のすべてのフォーム要素を取得
+        const filterElements = filtersField ? filtersField.querySelectorAll('select, input[type="checkbox"]') : [];
+
         if (radioProduct && radioProduct.checked) {
             // ★ 商品検索：フィルター有効
             filtersField.disabled = false;
-            // ジャンルのcheckboxを必ず有効化
+            filtersField.style.opacity = "1";
+            filtersField.style.pointerEvents = "auto";
+            
+            // 個別に有効化
+            filterElements.forEach(el => {
+                el.disabled = false;
+            });
+            
+            // ジャンルのcheckboxを有効化
             var genreCheckboxes = document.querySelectorAll('input[name="genre[]"]');
             genreCheckboxes.forEach(cb => cb.disabled = false);
+            
             searchInput.placeholder = "商品名・キーワード";
             searchButton.textContent = "検索";
         } else {
             // ★ 作家検索：フィルターをすべて無効にして閉じる
             filtersField.disabled = true;
-            // ジャンルのcheckboxをすべて無効化
+            filtersField.style.opacity = "0.6";
+            filtersField.style.pointerEvents = "none";
+            
+            // 個別に無効化
+            filterElements.forEach(el => {
+                el.disabled = true;
+            });
+            
+            // ジャンルのcheckboxを無効化
             var genreCheckboxes = document.querySelectorAll('input[name="genre[]"]');
             genreCheckboxes.forEach(cb => cb.disabled = true);
 
+            // ドロップダウンメニューを閉じる
             if (menu && toggle) {
                 menu.classList.remove("show");
                 toggle.classList.remove("open");
